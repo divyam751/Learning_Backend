@@ -1,10 +1,16 @@
-const fs = require("fs")
+const http = require("http");
 
-fs.readFile("./Notes.MD","utf-8",(err,data)=>{
-    if(err){
-        console.log(err)
+const server = http.createServer((req,res)=>{
+    if(req.url==="/sugar"){
+         res.write("Here is your Sugar")
+         res.end("!")
     }
-    else{
-        console.log(data)
+    else if (req.url==="/salt"){
+        res.write("This is your salt")
+        res.end("..!")
     }
+})
+
+server.listen(8000,()=>{
+    console.log("Server is running on port 8000");
 })
