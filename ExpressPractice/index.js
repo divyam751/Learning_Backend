@@ -5,46 +5,42 @@ const app = express();
 app.use(express.json());
 
 app.get("/", (req, res) => {
-  res.send("home page route");
+  res.status(200).send("Welcome to home page");
 });
 
-app.get("/lecture", (req, res) => {
-  res.send("lecture page " + req.method + req.url);
-});
-app.post("/lecture", (req, res) => {
-  //   res.send("lecture page");
-  res.send("got res" + JSON.stringify(req.body));
-});
-
-app.get("/post", (req, res) => {
-  fs.readFile("post.json", "utf-8", (err, data) => {
+app.get("/players", (req, res) => {
+  fs.readFile("db.json", "utf-8", (err, data) => {
     if (err) {
-      res.send("Something went wrong");
+      res.status(500).send("Something went wrong while fetching data");
     } else {
       res.status(200).send(data);
     }
   });
 });
 
-app.get("/welcome", (req, res) => {
-  const { name, age } = req.query;
-  res.send("welcome " + name + " and your age is " + age);
-});
+app.post("/players", (req, res) => {
+  const newPlayer = req.body;
+  let fileData;
 
-app.get("/post/:id", (req, res) => {
-  fs.readFile("post.json", "utf-8", (err, data) => {
+  fs.readFile("db.json", "utf-8", (err, data) => {
     if (err) {
-      res.status(500).send("Something went wrong");
+      res.status(500).send(err);
     } else {
-      const jsonData = JSON.parse(data);
-      const filterData = jsonData.filter((post) => {
-        return post.id === parseInt(req.params.id);
+      fileData = JSON.parse(data);
+
+      fileData.India.push(newPlayer);
+      fileData = JSON.stringify(fileData);
+
+      fs.writeFile("db.json", fileData, "utf-8", (err) => {
+        if (err) {
+          res.status(500).send("Error during writing in file");
+        } else {
+          res.status(200).send(`${newPlayer.name} is added into database `);
+        }
       });
-      console.log(filterData);
-      res.status(200).json(filterData);
     }
   });
 });
 app.listen(8000, () => {
-  console.log("App listing on port 8000");
+  console.log("Server started on port 8000");
 });
